@@ -1,5 +1,6 @@
-import { AxiosStatic } from 'axios';
+import * as HTTPUtil from '@src/util/request';
 import { InternalError } from '@src/util/errors/internal-error';
+import config, { IConfig } from 'config';
 
 export interface StormGlassPointSource {
   [key: string]: number;
@@ -31,6 +32,21 @@ export interface ForecastPoint {
   windSpeed: number;
 }
 
+/*
+ * This error type is used when a request reaches out to the
+ * StormGlass API but returns an error
+ */
+export class StormGlassUnexpectedResponseError extends InternalError {
+  constructor(message: string) {
+    super(message);
+  }
+}
+
+/*
+ * This error type is used when something breaks before the
+ * request reaches out to the StormGlass API eg: Network error,
+ * or request validation error
+ */
 export class ClientRequestError extends InternalError {
   constructor(message: string) {
     const internalMessage =
@@ -47,27 +63,41 @@ export class StormGlassResponseError extends InternalError {
   }
 }
 
+/*
+ * We could have proper type for the configuration
+ */
+const stormGlassResourceConfig: IConfig = config.get(
+  'App.resources.StormGlass'
+);
+
 export class StormGlass {
   readonly stormGlassAPIParams =
     'swellDirection,swellHeight,swellPeriod,waveDirection,waveHeight,windDirection,windSpeed';
   readonly stormGlassAPISource = 'noaa';
 
-  constructor(protected request: AxiosStatic) {}
+  constructor(protected request = new HTTPUtil.Request()) {}
 
   public async fetchPoints(lat: number, lng: number): Promise<ForecastPoint[]> {
     try {
       const response = await this.request.get<StormGlassForecastResponse>(
-        `https://api.stormglass.is/v2/weather/point?params=${this.stormGlassAPIParams}&source=${this.stormGlassAPISource}&end=1592113802&lat=${lat}&lng=${lng}`,
+        `${stormGlassResourceConfig.get('apiUrl')}/weather/point?params=${
+          this.stormGlassAPIParams
+        }&source=${
+          this.stormGlassAPISource
+        }&end=1592113802&lat=${lat}&lng=${lng}`,
         {
           headers: {
-            Authorization: 'fake-token',
+            Authorization: stormGlassResourceConfig.get('apiToken'),
           },
         }
       );
 
       return this.normalizeResponse(response.data);
     } catch (err) {
-      if (err.response && err.response.status) {
+      /*
+       * This is handling the Axios errors specifically
+       */
+      if (HTTPUtil.Request.isRequestError(err)) {
         throw new StormGlassResponseError(
           `Error: ${JSON.stringify(err.response.data)} Code: ${
             err.response.status
