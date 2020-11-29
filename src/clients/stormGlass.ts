@@ -1,3 +1,4 @@
+// Another way to have similar behaviour to TS namespaces
 import * as HTTPUtil from '@src/util/request';
 import { InternalError } from '@src/util/errors/internal-error';
 import config, { IConfig } from 'config';
@@ -50,7 +51,7 @@ export class StormGlassUnexpectedResponseError extends InternalError {
 export class ClientRequestError extends InternalError {
   constructor(message: string) {
     const internalMessage =
-      'Unexpected error when trying to comunicate to StormGlass';
+      'Unexpected error when trying to communicate to StormGlass';
     super(`${internalMessage}: ${message}`);
   }
 }
@@ -80,11 +81,11 @@ export class StormGlass {
   public async fetchPoints(lat: number, lng: number): Promise<ForecastPoint[]> {
     try {
       const response = await this.request.get<StormGlassForecastResponse>(
-        `${stormGlassResourceConfig.get('apiUrl')}/weather/point?params=${
+        `${stormGlassResourceConfig.get(
+          'apiUrl'
+        )}/weather/point?lat=${lat}&lng=${lng}&params=${
           this.stormGlassAPIParams
-        }&source=${
-          this.stormGlassAPISource
-        }&end=1592113802&lat=${lat}&lng=${lng}`,
+        }&source=${this.stormGlassAPISource}`,
         {
           headers: {
             Authorization: stormGlassResourceConfig.get('apiToken'),
