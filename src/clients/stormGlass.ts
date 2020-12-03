@@ -1,6 +1,6 @@
 // Another way to have similar behaviour to TS namespaces
-import * as HTTPUtil from '@src/util/request';
-import { InternalError } from '@src/util/errors/internal-error';
+import * as HTTPUtil from '../util/request';
+import { InternalError } from '../util/errors/internal-error';
 import config, { IConfig } from 'config';
 
 export interface StormGlassPointSource {
