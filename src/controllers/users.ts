@@ -2,7 +2,7 @@ import { Controller, Post } from '@overnightjs/core';
 import { Response, Request } from 'express';
 import { User } from '../models/user';
 import { BaseController } from './index';
-import AuthService from '@src/services/auth';
+import AuthService from '../services/auth';
 
 @Controller('users')
 export class UsersController extends BaseController {
@@ -40,6 +40,6 @@ export class UsersController extends BaseController {
     }
 
     const token = AuthService.generateToken(user.toJSON());
-    return res.status(200).send({ token: token });
+    return res.send({ ...user.toJSON(), ...{ token } });
   }
 }
