@@ -8,7 +8,7 @@ The image below shows the result of the web page with all the data that comes fr
 
 ## Run web page
 ----
-🔗 [How to run the web page.](https://github.com/waldemarnt/node-typescript-api/tree/master/web)
+🔗 [How to run the web page.](https://github.com/)
 
 ## Sequence Diagram #1
 ----
