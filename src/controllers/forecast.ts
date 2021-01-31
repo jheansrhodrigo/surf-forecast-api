@@ -1,16 +1,40 @@
-import { Controller, Get, ClassMiddleware } from '@overnightjs/core';
+import {
+  Controller,
+  Get,
+  ClassMiddleware,
+  Middleware,
+} from '@overnightjs/core';
 import { Request, Response } from 'express';
 import { Forecast } from '../services/forecast';
 import { Beach } from '../models/beach';
 import { authMiddleware } from '../middlewares/auth';
 import { BaseController } from '.';
+import rateLimit from 'express-rate-limit';
+import ApiError from '../util/errors/api-error';
 
 const forecast = new Forecast();
+const milliseconds = 60000;
+const rateLimiter = rateLimit({
+  windowMs: milliseconds,
+  max: 10,
+  keyGenerator(req: Request): string {
+    return req.ip;
+  },
+  handler(_, res: Response): void {
+    res.status(429).send(
+      ApiError.format({
+        code: 429,
+        message: 'Too many requests to the /forecast endpoint',
+      })
+    );
+  },
+});
 
 @Controller('forecast')
 @ClassMiddleware(authMiddleware)
 export class ForecastController extends BaseController {
   @Get('')
+  @Middleware(rateLimiter)
   public async getForecastForLoggedUser(
     req: Request,
     res: Response

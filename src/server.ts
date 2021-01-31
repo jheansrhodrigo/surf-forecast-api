@@ -1,16 +1,23 @@
 import { Server } from '@overnightjs/core';
 import { Application } from 'express';
 import bodyParser from 'body-parser';
+import * as http from 'http';
 import { ForecastController } from './controllers/forecast';
 import { BeachesController } from './controllers/beaches';
 import { UsersController } from './controllers/users';
 import expressPino from 'express-pino-logger';
+import apiShema from './api.schema.json';
+import swaggerUI from 'swagger-ui-express';
+import { OpenApiValidator } from 'express-openapi-validator';
+import { OpenAPIV3 } from 'express-openapi-validator/dist/framework/types';
 import cors from 'cors';
 import logger from './logger';
 import * as database from './database';
 import './util/module-alias';
+import { apiErrorValidator } from './middlewares/api-error-validator';
 
 export class SetupServer extends Server {
+  private server?: http.Server;
   /*
    * same as this.port = port, declaring as private here will
    * add the port variable to the SetupServer instance
@@ -25,14 +32,29 @@ export class SetupServer extends Server {
    */
   public async init(): Promise<void> {
     this.setupExpress();
+    await this.docsSetup();
     this.setupControllers();
     await this.databaseSetup();
+    this.setupErrorHandlers();
   }
 
   private setupExpress(): void {
     this.app.use(bodyParser.json());
     this.app.use(expressPino({ logger }));
     this.app.use(cors({ origin: '*' }));
+  }
+
+  private setupErrorHandlers(): void {
+    this.app.use(apiErrorValidator);
+  }
+
+  private async docsSetup(): Promise<void> {
+    this.app.use('/docs', swaggerUI.serve, swaggerUI.setup(apiShema));
+    await new OpenApiValidator({
+      apiSpec: apiShema as OpenAPIV3.Document,
+      validateRequests: true,
+      validateResponses: true,
+    }).install(this.app);
   }
 
   private setupControllers(): void {
@@ -46,16 +68,28 @@ export class SetupServer extends Server {
     ]);
   }
 
+  public getApp(): Application {
+    return this.app;
+  }
+
   private async databaseSetup(): Promise<void> {
     await database.connect();
   }
 
   public async close(): Promise<void> {
     await database.close();
-  }
 
-  public getApp(): Application {
-    return this.app;
+    if (this.server) {
+      await new Promise((resolve, reject) => {
+        this.server?.close((err) => {
+          if (err) {
+            return reject(err);
+          }
+
+          resolve();
+        });
+      });
+    }
   }
 
   public start(): void {
