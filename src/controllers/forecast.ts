@@ -14,6 +14,7 @@ import ApiError from '../util/errors/api-error';
 
 const forecast = new Forecast();
 const milliseconds = 60000;
+
 const rateLimiter = rateLimit({
   windowMs: milliseconds,
   max: 10,

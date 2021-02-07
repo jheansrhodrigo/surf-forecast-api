@@ -4,6 +4,7 @@ import { Beach } from '../models/beach';
 import logger from '../logger';
 import { Rating } from './rating';
 import _ from 'lodash';
+
 export interface BeachForecast extends Omit<Beach, 'user'>, ForecastPoint {}
 
 export interface TimeForecast {
@@ -48,9 +49,9 @@ export class Forecast {
 
     for (const beach of beaches) {
       const rating = new this.RatingService(beach);
+      // TODO someone to make this call in parallel
       const points = await this.stormGlass.fetchPoints(beach.lat, beach.lng);
       const enrichedBeachData = this.enrichedBeachData(points, beach, rating);
-
       pointsWithCorrectSources.push(...enrichedBeachData);
     }
 

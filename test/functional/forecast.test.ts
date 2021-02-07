@@ -44,6 +44,7 @@ describe('Beach forecast functional testes', () => {
         lng: '151.289824',
         params: /(.*)/,
         source: 'noaa',
+        end: /(.*)/,
       })
       .reply(200, stormGlassWeather3HoursFixture);
 
@@ -51,6 +52,7 @@ describe('Beach forecast functional testes', () => {
       .get('/forecast')
       .set({ 'x-access-token': token });
     expect(status).toBe(200);
+    // Make sure we use toEqual to check value not the object and array itself
     expect(body).toEqual(apiForecastResponse1BeachFixture);
   });
 
