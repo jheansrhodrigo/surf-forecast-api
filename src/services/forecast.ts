@@ -5,7 +5,9 @@ import logger from '../logger';
 import { Rating } from './rating';
 import _ from 'lodash';
 
-export interface BeachForecast extends Omit<Beach, 'user'>, ForecastPoint {}
+export interface BeachForecast extends Omit<Beach, 'userId'>, ForecastPoint {
+  rating: number;
+}
 
 export interface TimeForecast {
   time: string;

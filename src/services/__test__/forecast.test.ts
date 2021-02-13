@@ -41,14 +41,14 @@ describe('Forecast Service', () => {
         lng: 151.289824,
         name: 'Manly',
         position: GeoPosition.east,
-        user: 'fake-id',
+        userId: 'fake-id',
       },
       {
         lat: -33.792726,
         lng: 141.289824,
         name: 'Dee Why',
         position: GeoPosition.south,
-        user: 'fake-id',
+        userId: 'fake-id',
       },
     ];
 
@@ -106,7 +106,7 @@ describe('Forecast Service', () => {
         lng: 151.289824,
         name: 'Manly',
         position: GeoPosition.east,
-        user: 'fake-id',
+        userId: 'fake-id',
       },
     ];
 
@@ -191,7 +191,7 @@ describe('Forecast Service', () => {
         lng: 151.289824,
         name: 'Manly',
         position: GeoPosition.east,
-        user: 'fake-id',
+        userId: 'fake-id',
       },
     ];
 

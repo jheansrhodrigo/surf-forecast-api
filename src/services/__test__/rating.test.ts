@@ -7,7 +7,7 @@ describe('Rating service', () => {
     lng: 151.289824,
     name: 'Manly',
     position: GeoPosition.east,
-    user: 'some-user',
+    userId: 'some-user',
   };
 
   const defaultRating = new Rating(defaultBeach);
